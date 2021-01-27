@@ -30,7 +30,8 @@ from .utils import (
     get_incorrect_fields,
     get_or_create_user_from_token,
     get_parsed_id_token,
-    get_saleor_permissions_from_scope,
+    get_saleor_permission_names,
+    get_saleor_permissions_qs_from_scope,
     get_user_from_token,
     is_owner_of_token_valid,
     validate_refresh_token,
@@ -174,6 +175,14 @@ class OpenIDConnectPlugin(BasePlugin):
             scope=scope,
         )
 
+    def _use_scope_permissions(self, user, scope):
+        user_permissions = None
+        if scope:
+            permissions = get_saleor_permissions_qs_from_scope(scope)
+            user_permissions = get_saleor_permission_names(permissions)
+            user.effective_permissions = permissions
+        return user_permissions
+
     def external_obtain_access_tokens(
         self, data: dict, request: WSGIRequest, previous_value
     ) -> ExternalAccessTokens:
@@ -205,16 +214,18 @@ class OpenIDConnectPlugin(BasePlugin):
         token_data = self.oauth.fetch_token(
             self.config.token_url, code=code, redirect_uri=redirect_uri
         )
-        user_permissions = None
-        if self.config.use_scope_permissions:
-            user_permissions = get_saleor_permissions_from_scope(
-                token_data.get("scope")
-            )
 
         parsed_id_token = get_parsed_id_token(
             token_data, self.config.json_web_key_set_url
         )
         user = get_or_create_user_from_token(parsed_id_token)
+
+        user_permissions = None
+        if self.config.use_scope_permissions:
+            user_permissions = self._use_scope_permissions(
+                user, token_data.get("scope")
+            )
+
         tokens = create_tokens_from_oauth_payload(
             token_data, user, parsed_id_token, user_permissions, owner=self.PLUGIN_ID
         )
@@ -282,15 +293,17 @@ class OpenIDConnectPlugin(BasePlugin):
                 }
             )
         try:
-            user_permissions = None
-            if self.config.use_scope_permissions:
-                user_permissions = get_saleor_permissions_from_scope(
-                    token_data.get("scope")
-                )
             parsed_id_token = get_parsed_id_token(
                 token_data, self.config.json_web_key_set_url
             )
             user = get_user_from_token(parsed_id_token)
+
+            user_permissions = None
+            if self.config.use_scope_permissions:
+                user_permissions = self._use_scope_permissions(
+                    user, token_data.get("scope")
+                )
+
             tokens = create_tokens_from_oauth_payload(
                 token_data,
                 user,

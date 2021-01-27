@@ -119,6 +119,12 @@ class WebhookPlugin(BasePlugin):
         product_data = generate_product_payload(product)
         trigger_webhooks_for_event.delay(WebhookEventType.PRODUCT_UPDATED, product_data)
 
+    def product_deleted(self, product: "Product", previous_value: Any) -> Any:
+        if not self.active:
+            return previous_value
+        product_data = generate_product_payload(product)
+        trigger_webhooks_for_event.delay(WebhookEventType.PRODUCT_DELETED, product_data)
+
     # Deprecated. This method will be removed in Saleor 3.0
     def checkout_quantity_changed(
         self, checkout: "Checkout", previous_value: Any

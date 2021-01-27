@@ -94,13 +94,20 @@ class ProductBulkDelete(ModelBulkDeleteMutation):
                 variant__in=variants, order__status=OrderStatus.DRAFT
             ).values_list("pk", flat=True)
         )
-
+        data["manager"] = info.context.plugins
         response = super().perform_mutation(_root, info, ids, **data)
 
         # delete order lines for deleted variants
         order_models.OrderLine.objects.filter(pk__in=order_line_pks).delete()
 
         return response
+
+    @classmethod
+    def bulk_action(cls, queryset, manager):
+        products = [product for product in queryset]
+        queryset.delete()
+        for product in products:
+            manager.product_deleted(product)
 
 
 class BulkAttributeValueInput(InputObjectType):

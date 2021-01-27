@@ -68,7 +68,7 @@ def jwt_decode(token: str, verify_expiration=settings.JWT_EXPIRE) -> Dict[str, A
         token,
         settings.SECRET_KEY,  # type: ignore
         algorithms=[JWT_ALGORITHM],
-        verify_expiration=verify_expiration,
+        options={"verify_exp": settings.JWT_EXPIRE},
     )
 
 

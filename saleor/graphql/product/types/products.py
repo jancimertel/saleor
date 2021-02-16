@@ -503,6 +503,7 @@ class Product(ChannelContextTypeWithMetadata, CountableDjangoObjectType):
             "category",
             "charge_taxes",
             "description",
+            "description_plaintext",
             "id",
             "name",
             "slug",
@@ -540,6 +541,10 @@ class Product(ChannelContextTypeWithMetadata, CountableDjangoObjectType):
     @staticmethod
     def resolve_description_json(root: ChannelContext[models.Product], info):
         return root.node.description
+
+    @staticmethod
+    def resolve_description_plaintext(root: ChannelContext[models.Product], info):
+        return root.node.description_plaintext
 
     @staticmethod
     def resolve_tax_type(root: ChannelContext[models.Product], info):

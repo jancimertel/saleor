@@ -3792,6 +3792,7 @@ type Product implements Node & ObjectWithMetadata {
   seoDescription: String
   name: String!
   description: JSONString!
+  descriptionPlaintext: String!
   productType: ProductType!
   slug: String!
   category: Category

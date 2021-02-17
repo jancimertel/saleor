@@ -12,48 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL(
             """
-            CREATE TABLE IF NOT EXISTS allegro_offers (
-                id                   SERIAL PRIMARY KEY,
-                offer_id             VARCHAR (50) UNIQUE,
-                original_category_id VARCHAR (50) NOT NULL,
-                original_variant_id  VARCHAR (50),
-                pending_update       BOOLEAN NOT NULL default false,
-                pending_delete       BOOLEAN NOT NULL default false,
-                last_sync_at         TIMESTAMP default current_timestamp,
-                last_download_at     TIMESTAMP default current_timestamp,
-                data                 JSONB
-            );
-            """
-        ),
-        migrations.RunSQL(
-            """
-            CREATE TABLE IF NOT EXISTS allegro_jobs (
-                id               SERIAL PRIMARY KEY,
-                name             VARCHAR(100) UNIQUE,
-                original_cat_id  VARCHAR (255) UNIQUE,
-                saleor_cat_id    INTEGER UNIQUE,
-                price_addition   NUMERIC,
-                last_pass_at     TIMESTAMP default current_timestamp,
-                last_finished_at TIMESTAMP
-            );
-            """
-        ),
-        migrations.RunSQL(
-            """
-            ALTER TABLE product_product DROP CONSTRAINT IF EXISTS allegro_offers_id_unique;
-            ALTER TABLE product_product DROP CONSTRAINT IF EXISTS product_product_allegro_offers_id_fkey;
-
-            ALTER TABLE product_product ADD COLUMN IF NOT EXISTS allegro_offers_id INTEGER REFERENCES allegro_offers (id);
-            ALTER TABLE product_product ADD CONSTRAINT allegro_offers_id_unique UNIQUE (allegro_offers_id);
-            """
-        ),
-        migrations.RunSQL(
-            """
             ALTER TABLE product_product ADD COLUMN IF NOT EXISTS is_original_name BOOLEAN DEFAULT TRUE; 
-            """
-        ),
-        migrations.RunSQL(
-            """
             ALTER TABLE product_product ADD COLUMN IF NOT EXISTS is_original_description BOOLEAN DEFAULT TRUE;
             """
         ),

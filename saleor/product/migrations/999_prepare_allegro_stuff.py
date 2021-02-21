@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("product", "0141_update_product_ts_vector"), # always use latest original migration
+        ("product", "0140_auto_20210125_0905"), # always use latest original migration
     ]
 
     operations = [
         migrations.RunSQL(
             """
-            ALTER TABLE product_product ADD COLUMN IF NOT EXISTS is_original_name BOOLEAN DEFAULT TRUE; 
+            ALTER TABLE product_product ADD COLUMN IF NOT EXISTS is_original_name BOOLEAN DEFAULT TRUE;
             ALTER TABLE product_product ADD COLUMN IF NOT EXISTS is_original_description BOOLEAN DEFAULT TRUE;
             """
         ),
